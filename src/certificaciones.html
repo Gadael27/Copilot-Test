@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Certificaciones | Gadael Hinojosa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0f0303;
+      --accent: #ff1a1a;
+      --accent2: #ff6b35;
+      --white: #fff0f0;
+      --muted: rgba(255,240,240,.45);
+      --border: rgba(255,26,26,.15);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{min-height:100%;overflow-x:hidden;}
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:var(--bg);
+      color:var(--white);
+      cursor:none;
+    }
+
+    /* ── CURSOR ── */
+    #cursor{
+      position:fixed;width:12px;height:12px;
+      background:var(--accent);border-radius:50%;
+      pointer-events:none;z-index:9999;
+      transform:translate(-50%,-50%);
+      mix-blend-mode:screen;transition:width .15s,height .15s;
+    }
+    #cursor-trail{
+      position:fixed;width:36px;height:36px;
+      border:1px solid rgba(255,26,26,.5);border-radius:50%;
+      pointer-events:none;z-index:9998;
+      transform:translate(-50%,-50%);
+      transition:left .08s,top .08s;
+    }
+
+    /* ── TRANSITION OVERLAY ── */
+    #transition-overlay{
+      position:fixed;inset:0;z-index:10000;
+      pointer-events:none;display:flex;flex-direction:column;
+    }
+    .t-slice{
+      flex:1;background:var(--accent);
+      transform:scaleX(1);transform-origin:right;
+    }
+
+    /* ── BG AGGRESSIVE ── */
+    .bg-red{
+      position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 800px 600px at 50% 50%, rgba(255,26,26,.08), transparent 65%),
+        radial-gradient(ellipse 400px 300px at 100% 0%, rgba(255,107,53,.07), transparent 55%);
+    }
+    canvas#lines-canvas{
+      position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.7;
+    }
+
+    /* ── HEADER ── */
+    header{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      padding:18px 5vw;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(20px);
+      background:rgba(15,3,3,.85);
+    }
+    .logo-mark{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:28px;letter-spacing:2px;
+      color:var(--accent);
+    }
+    nav{display:flex;gap:6px;}
+    .nav-btn{
+      font-family:'Share Tech Mono',monospace;
+      font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+      padding:8px 16px;border-radius:4px;
+      border:1px solid transparent;
+      background:transparent;color:var(--muted);
+      cursor:none;transition:.2s;
+      text-decoration:none;display:inline-block;
+    }
+    .nav-btn:hover{color:var(--accent);border-color:rgba(255,26,26,.3);}
+    .nav-btn.active{
+      color:var(--accent);border-color:var(--accent);
+      background:rgba(255,26,26,.08);
+      box-shadow:0 0 20px rgba(255,26,26,.25);
+    }
+
+    /* ── PAGE TITLE ── */
+    main{
+      position:relative;z-index:2;
+      padding:110px 5vw 80px;
+      max-width:1200px;margin:0 auto;
+    }
+    .page-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:11px;letter-spacing:3px;color:var(--accent);
+      margin-bottom:12px;text-transform:uppercase;
+    }
+    h1{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(60px,10vw,120px);
+      line-height:.9;letter-spacing:3px;
+      margin-bottom:6px;
+      position:relative;
+    }
+    h1 .dim{color:rgba(255,240,240,.15);}
+    h1 .hi{
+      color:var(--accent);
+      text-shadow: 0 0 40px rgba(255,26,26,.5);
+      animation:flicker 5s infinite;
+    }
+    @keyframes flicker{
+      0%,90%,100%{opacity:1;text-shadow:0 0 40px rgba(255,26,26,.5);}
+      92%{opacity:.8;text-shadow:0 0 80px rgba(255,26,26,.9),0 0 10px #fff;}
+      94%{opacity:1;}
+      96%{opacity:.85;}
+      98%{opacity:1;text-shadow:0 0 60px rgba(255,26,26,.7);}
+    }
+    .page-sub{
+      font-size:15px;color:var(--muted);line-height:1.8;
+      max-width:500px;margin-bottom:50px;font-weight:300;
+    }
+
+    /* ── CERTS GRID ── */
+    .certs-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:20px;
+    }
+    @media(max-width:700px){.certs-grid{grid-template-columns:1fr;}}
+
+    .cert-card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:32px 28px;
+      background:rgba(255,26,26,.03);
+      position:relative;overflow:hidden;
+      transition:.4s;
+    }
+    /* Aggressive diagonal slash */
+    .cert-card::before{
+      content:'';position:absolute;
+      top:-20px;right:-20px;
+      width:80px;height:80px;
+      background:rgba(255,26,26,.06);
+      transform:rotate(45deg);
+      transition:.4s;
+    }
+    .cert-card:hover::before{
+      width:200px;height:200px;
+      background:rgba(255,26,26,.10);
+    }
+    .cert-card::after{
+      content:'';position:absolute;
+      bottom:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,var(--accent),transparent);
+      transform:scaleX(0);transition:.4s;
+    }
+    .cert-card:hover::after{transform:scaleX(1);}
+    .cert-card:hover{
+      border-color:rgba(255,26,26,.4);
+      transform:translateY(-5px) skewY(-.3deg);
+      box-shadow:0 0 60px rgba(255,26,26,.15);
+    }
+
+    .cert-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:18px;}
+    .cert-icon{
+      width:60px;height:60px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:28px;
+      flex-shrink:0;
+      border:1px solid rgba(255,26,26,.2);
+      background:rgba(255,26,26,.06);
+    }
+    .cert-badge-wrap{flex:1;}
+    .cert-code{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:36px;letter-spacing:2px;
+      color:var(--accent);
+      line-height:1;
+      text-shadow:0 0 20px rgba(255,26,26,.4);
+    }
+    .cert-issuer{
+      font-family:'Share Tech Mono',monospace;
+      font-size:11px;letter-spacing:1.5px;
+      color:var(--muted);text-transform:uppercase;
+    }
+    .cert-title{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:18px;letter-spacing:1px;
+      margin-bottom:10px;color:var(--white);
+    }
+    .cert-desc{font-size:13.5px;color:var(--muted);line-height:1.65;}
+    .cert-skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+    .cert-skill{
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px;padding:3px 9px;
+      border:1px solid rgba(255,26,26,.22);border-radius:2px;
+      color:var(--accent);
+    }
+
+    /* ── SLASH DIVIDER ── */
+    .slash-divider{
+      display:flex;align-items:center;gap:16px;
+      margin:50px 0 30px;
+    }
+    .slash-line{flex:1;height:1px;background:var(--border);}
+    .slash-text{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:20px;letter-spacing:3px;
+      color:rgba(255,26,26,.4);
+    }
+
+    /* ── TIMELINE HORIZONTAL ── */
+    .timeline-h{
+      display:flex;gap:0;
+      position:relative;
+      padding:20px 0;
+    }
+    .timeline-h::before{
+      content:'';position:absolute;left:0;right:0;top:50%;
+      height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent),transparent);
+      opacity:.3;
+    }
+    .tl-node{
+      flex:1;text-align:center;position:relative;
+      padding:0 12px;
+    }
+    .tl-dot{
+      width:12px;height:12px;border-radius:50%;
+      background:var(--accent);margin:0 auto 12px;
+      box-shadow:0 0 15px var(--accent);
+      animation:pulseDot 2s infinite;
+    }
+    @keyframes pulseDot{
+      0%,100%{box-shadow:0 0 15px var(--accent);}
+      50%{box-shadow:0 0 30px var(--accent),0 0 5px #fff;}
+    }
+    .tl-node-code{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);}
+    .tl-node-label{font-size:11px;color:var(--muted);margin-top:4px;}
+
+    /* ── REVEAL ── */
+    .reveal{opacity:0;transform:translateX(-16px);transition:.6s ease;}
+    .reveal.show{opacity:1;transform:translateX(0);}
+    .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+  </style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+<div id="transition-overlay">
+  <div class="t-slice"></div><div class="t-slice"></div>
+  <div class="t-slice"></div><div class="t-slice"></div>
+  <div class="t-slice"></div>
+</div>
+
+<div class="bg-red"></div>
+<canvas id="lines-canvas"></canvas>
+
+<header>
+  <div class="logo-mark">GH_</div>
+  <nav>
+    <a class="nav-btn" href="index.html" data-page="index">// INICIO</a>
+    <a class="nav-btn" href="sobre-mi.html" data-page="sobre-mi">// SOBRE MÍ</a>
+    <a class="nav-btn active" href="certificaciones.html" data-page="certificaciones">// CERTIFICACIONES</a>
+    <a class="nav-btn" href="contacto.html" data-page="contacto">// CONTACTO</a>
+  </nav>
+</header>
+
+<main>
+  <div class="reveal">
+    <div class="page-label">// 02 — CONOCIMIENTO VALIDADO</div>
+    <h1><span class="hi">CERTIFI</span><br><span class="dim">CACIONES</span></h1>
+    <p class="page-sub">Certificaciones que validan mi expertise en Cybersecurity y AI Governance a nivel internacional.</p>
+  </div>
+
+  <!-- Timeline horizontal -->
+  <div class="timeline-h reveal">
+    <div class="tl-node"><div class="tl-dot"></div><div class="tl-node-code">SC-900</div><div class="tl-node-label">FUNDAMENTOS</div></div>
+    <div class="tl-node"><div class="tl-dot"></div><div class="tl-node-code">SC-200</div><div class="tl-node-label">ANALYST</div></div>
+    <div class="tl-node"><div class="tl-dot"></div><div class="tl-node-code">CAIERO<br>EXPERT</div><div class="tl-node-label">AI GOV</div></div>
+    <div class="tl-node"><div class="tl-dot"></div><div class="tl-node-code">CAIERO<br>MASTER</div><div class="tl-node-label">AI GOV+</div></div>
+  </div>
+
+  <!-- Cards -->
+  <div class="certs-grid" style="margin-top:30px;">
+
+    <div class="cert-card reveal d1">
+      <div class="cert-header">
+        <div class="cert-icon">🛡️</div>
+        <div class="cert-badge-wrap">
+          <div class="cert-code">SC-900</div>
+          <div class="cert-issuer">Microsoft</div>
+        </div>
+      </div>
+      <div class="cert-title">Security, Compliance &amp; Identity Fundamentals</div>
+      <p class="cert-desc">Fundamentos de seguridad en la nube, cumplimiento normativo e identidad en entornos Microsoft 365 y Azure. Base esencial para cualquier rol de seguridad.</p>
+      <div class="cert-skills">
+        <span class="cert-skill">AZURE AD</span>
+        <span class="cert-skill">COMPLIANCE</span>
+        <span class="cert-skill">IDENTIDAD</span>
+        <span class="cert-skill">MICROSOFT 365</span>
+      </div>
+    </div>
+
+    <div class="cert-card reveal d2">
+      <div class="cert-header">
+        <div class="cert-icon">🔍</div>
+        <div class="cert-badge-wrap">
+          <div class="cert-code">SC-200</div>
+          <div class="cert-issuer">Microsoft</div>
+        </div>
+      </div>
+      <div class="cert-title">Security Operations Analyst Associate</div>
+      <p class="cert-desc">Investigación, respuesta y remediación de amenazas usando Microsoft Sentinel, Defender y herramientas avanzadas de SIEM/SOAR.</p>
+      <div class="cert-skills">
+        <span class="cert-skill">SENTINEL</span>
+        <span class="cert-skill">DEFENDER</span>
+        <span class="cert-skill">SIEM/SOAR</span>
+        <span class="cert-skill">INCIDENTES</span>
+      </div>
+    </div>
+
+    <div class="cert-card reveal d3">
+      <div class="cert-header">
+        <div class="cert-icon">🤖</div>
+        <div class="cert-badge-wrap">
+          <div class="cert-code">CAIERO</div>
+          <div class="cert-issuer">Expert Level</div>
+        </div>
+      </div>
+      <div class="cert-title">Certified AI Ethics &amp; Governance Expert</div>
+      <p class="cert-desc">Marco experto de gobernanza ética de IA: políticas, evaluación de riesgos, sesgos algorítmicos y marcos regulatorios internacionales.</p>
+      <div class="cert-skills">
+        <span class="cert-skill">ÉTICA IA</span>
+        <span class="cert-skill">RIESGOS</span>
+        <span class="cert-skill">SESGOS</span>
+        <span class="cert-skill">REGULACIÓN</span>
+      </div>
+    </div>
+
+    <div class="cert-card reveal d4">
+      <div class="cert-header">
+        <div class="cert-icon">⭐</div>
+        <div class="cert-badge-wrap">
+          <div class="cert-code">CAIERO</div>
+          <div class="cert-issuer">Master Level</div>
+        </div>
+      </div>
+      <div class="cert-title">Certified AI Ethics &amp; Governance Master</div>
+      <p class="cert-desc">Nivel maestro en gobernanza de IA: liderazgo de programas, diseño de marcos institucionales y estrategia de transformación responsable con IA.</p>
+      <div class="cert-skills">
+        <span class="cert-skill">LIDERAZGO</span>
+        <span class="cert-skill">ESTRATEGIA</span>
+        <span class="cert-skill">MARCOS IA</span>
+        <span class="cert-skill">INSTITUCIONAL</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // ── CURSOR ──
+  const cur=document.getElementById('cursor');
+  const trail=document.getElementById('cursor-trail');
+  document.addEventListener('mousemove',e=>{
+    cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';
+    setTimeout(()=>{trail.style.left=e.clientX+'px';trail.style.top=e.clientY+'px';},60);
+  });
+
+  // ── AGGRESSIVE LINES CANVAS ──
+  const canvas=document.getElementById('lines-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+
+  const lineGroups=[];
+  for(let i=0;i<18;i++){
+    lineGroups.push({
+      x:Math.random()*2000,y:Math.random()*1000,
+      angle:(Math.random()-.5)*1.5,
+      speed:.4+Math.random()*.8,
+      length:80+Math.random()*200,
+      alpha:Math.random()*.4+.1,
+      width:.5+Math.random()*1.5,
+      hue:Math.random()<.7?0:15
+    });
+  }
+  // Static harsh diagonal lines
+  const staticLines=[];
+  for(let i=0;i<6;i++){
+    staticLines.push({
+      x1:-100+Math.random()*500,y1:0,
+      x2:800+Math.random()*800,y2:Math.random()*window.innerHeight,
+      alpha:.04+Math.random()*.06
+    });
+  }
+
+  function drawLines(){
+    ctx.clearRect(0,0,W,H);
+    // Static lines
+    staticLines.forEach(l=>{
+      ctx.beginPath();
+      ctx.strokeStyle=`rgba(255,26,26,${l.alpha})`;
+      ctx.lineWidth=1;
+      ctx.moveTo(l.x1,l.y1);ctx.lineTo(l.x2,l.y2);
+      ctx.stroke();
+    });
+    // Moving particles
+    lineGroups.forEach(l=>{
+      l.x+=Math.cos(l.angle)*l.speed;
+      l.y+=Math.sin(l.angle)*l.speed;
+      if(l.x>W+100)l.x=-100;
+      if(l.x<-100)l.x=W+100;
+      if(l.y>H+100)l.y=-100;
+      if(l.y<-100)l.y=H+100;
+      ctx.beginPath();
+      ctx.strokeStyle=`rgba(255,${l.hue},${l.hue},${l.alpha})`;
+      ctx.lineWidth=l.width;
+      const dx=Math.cos(l.angle)*l.length;
+      const dy=Math.sin(l.angle)*l.length;
+      ctx.moveTo(l.x,l.y);
+      ctx.lineTo(l.x+dx,l.y+dy);
+      ctx.stroke();
+      // occasional bright flash
+      if(Math.random()<.001){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(255,255,255,.6)`;
+        ctx.lineWidth=2;
+        ctx.moveTo(l.x,l.y);ctx.lineTo(l.x+dx,l.y+dy);
+        ctx.stroke();
+      }
+    });
+    requestAnimationFrame(drawLines);
+  }
+  drawLines();
+
+  // ── ENTER ANIMATION ──
+  const slices=document.querySelectorAll('.t-slice');
+  window.addEventListener('load',()=>{
+    setTimeout(()=>{
+      slices.forEach((s,i)=>{
+        s.style.transition=`transform .4s cubic-bezier(.77,0,.18,1) ${i*.05}s`;
+        s.style.transform='scaleX(0)';
+      });
+    },50);
+  });
+
+  // ── REVEAL ──
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show');});
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // ── PAGE TRANSITIONS ──
+  const colors={'index':'#00c8ff','sobre-mi':'#7b61ff','certificaciones':'#ff1a1a','contacto':'#00e5a0'};
+  document.querySelectorAll('a[data-page]').forEach(link=>{
+    link.addEventListener('click',function(e){
+      if(this.href===window.location.href)return;
+      e.preventDefault();
+      const col=colors[this.dataset.page]||'#ff1a1a';
+      slices.forEach((s,i)=>{
+        s.style.background=col;
+        s.style.transformOrigin='left';
+        s.style.transition=`transform .35s cubic-bezier(.77,0,.18,1) ${i*.04}s`;
+        s.style.transform='scaleX(1)';
+      });
+      setTimeout(()=>window.location.href=this.href,500);
+    });
+  });
+</script>
+</body>
+</html>

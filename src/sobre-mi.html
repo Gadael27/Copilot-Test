@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sobre mí | Gadael Hinojosa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #07040f;
+      --accent: #7b61ff;
+      --accent2: #c084fc;
+      --green: #00e5a0;
+      --text: #f0eaff;
+      --muted: rgba(240,234,255,.5);
+      --border: rgba(123,97,255,.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; overflow-x: hidden; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      cursor: none;
+    }
+
+    /* ── CURSOR ── */
+    #cursor {
+      position: fixed; width: 12px; height: 12px;
+      background: var(--accent); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      mix-blend-mode: screen; transition: width .2s, height .2s;
+    }
+    #cursor-trail {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(123,97,255,.4); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: left .08s ease, top .08s ease;
+    }
+
+    /* ── TRANSITION OVERLAY ── */
+    #transition-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      pointer-events: none; display: flex;
+    }
+    .t-slice {
+      flex: 1; background: var(--accent);
+      transform: scaleX(1); transform-origin: right;
+      transition: transform .4s cubic-bezier(.77,0,.18,1);
+    }
+
+    /* ── BG ── */
+    .bg-mesh {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 700px 500px at 0% 20%, rgba(123,97,255,.15), transparent 60%),
+        radial-gradient(ellipse 600px 400px at 100% 60%, rgba(192,132,252,.10), transparent 60%),
+        radial-gradient(ellipse 400px 300px at 50% 90%, rgba(0,229,160,.06), transparent 60%);
+    }
+    /* Diagonal stripe pattern */
+    .bg-stripes {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .04;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(123,97,255,1) 0px, rgba(123,97,255,1) 1px,
+        transparent 1px, transparent 30px
+      );
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      background: rgba(7,4,15,.8);
+    }
+    .logo-mark {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    nav { display: flex; gap: 6px; }
+    .nav-btn {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 8px 16px; border-radius: 4px;
+      border: 1px solid transparent;
+      background: transparent; color: var(--muted);
+      cursor: none; transition: .2s;
+      text-decoration: none; display: inline-block;
+    }
+    .nav-btn:hover { color: var(--accent); border-color: rgba(123,97,255,.3); }
+    .nav-btn.active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(123,97,255,.08);
+      box-shadow: 0 0 20px rgba(123,97,255,.2);
+    }
+
+    /* ── CONTENT ── */
+    main {
+      position: relative; z-index: 2;
+      padding: 120px 5vw 80px;
+      max-width: 1120px; margin: 0 auto;
+    }
+
+    .page-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px; letter-spacing: 3px; color: var(--accent);
+      margin-bottom: 12px; text-transform: uppercase;
+    }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(50px, 8vw, 90px);
+      line-height: .95; letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    h1 .dim { color: rgba(240,234,255,.25); }
+    h1 .hi { color: var(--accent); }
+    .page-desc {
+      font-size: 16px; color: var(--muted); line-height: 1.8;
+      max-width: 520px; margin-bottom: 50px; font-weight: 300;
+    }
+
+    /* ── EXPERTISE GRID ── */
+    .exp-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 16px; margin-bottom: 50px;
+    }
+    @media(max-width:800px){ .exp-grid { grid-template-columns: 1fr; } }
+
+    .exp-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px 22px;
+      background: rgba(123,97,255,.04);
+      position: relative; overflow: hidden;
+      transition: .3s;
+    }
+    .exp-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0); transform-origin: left; transition: .4s;
+    }
+    .exp-card:hover::before { transform: scaleX(1); }
+    .exp-card:hover { border-color: rgba(123,97,255,.35); transform: translateY(-4px); box-shadow: 0 0 40px rgba(123,97,255,.12); }
+    .exp-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px; color: rgba(123,97,255,.2);
+      line-height: 1; margin-bottom: 8px;
+    }
+    .exp-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; margin-bottom: 10px; }
+    .exp-desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+    .exp-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .exp-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; padding: 3px 8px;
+      border: 1px solid rgba(123,97,255,.25); border-radius: 2px; color: var(--accent);
+    }
+
+    /* ── SKILL BARS ── */
+    .skills-section { margin-bottom: 50px; }
+    .skills-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 2px; margin-bottom: 22px;
+      color: var(--accent2);
+    }
+    .skill-row { margin-bottom: 18px; }
+    .skill-top { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+    .skill-top .name { font-weight: 500; }
+    .skill-top .pct { font-family: 'Share Tech Mono', monospace; color: var(--muted); font-size: 12px; }
+    .skill-bg { height: 6px; background: rgba(255,255,255,.06); border-radius: 999px; overflow: hidden; }
+    .skill-fill {
+      height: 100%; border-radius: 999px; width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 1.3s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 0 10px rgba(123,97,255,.5);
+    }
+
+    /* ── TIMELINE ── */
+    .tl-section { position: relative; padding-left: 30px; }
+    .tl-section::before {
+      content:''; position:absolute; left:8px; top:10px; bottom:10px;
+      width:1px;
+      background: linear-gradient(to bottom, var(--accent), rgba(123,97,255,0));
+    }
+    .tl-item {
+      position: relative; margin-bottom: 18px;
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px 20px;
+      background: rgba(7,4,15,.7);
+      transition: .3s;
+    }
+    .tl-item::before {
+      content:''; position:absolute; left:-26px; top:20px;
+      width:10px; height:10px; border-radius:50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .tl-item:hover { border-color: rgba(123,97,255,.35); box-shadow: 0 0 30px rgba(123,97,255,.1); }
+    .tl-year { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent); margin-bottom: 5px; letter-spacing: 1px; }
+    .tl-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; margin-bottom: 6px; }
+    .tl-desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+
+    /* ── REVEAL ── */
+    .reveal { opacity:0; transform:translateY(20px); transition:.7s ease; }
+    .reveal.show { opacity:1; transform:translateY(0); }
+    .d1{transition-delay:.1s} .d2{transition-delay:.2s} .d3{transition-delay:.3s}
+  </style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+<div id="transition-overlay">
+  <div class="t-slice"></div><div class="t-slice"></div>
+  <div class="t-slice"></div><div class="t-slice"></div>
+  <div class="t-slice"></div>
+</div>
+
+<div class="bg-mesh"></div>
+<div class="bg-stripes"></div>
+
+<header>
+  <div class="logo-mark">GH_</div>
+  <nav>
+    <a class="nav-btn" href="index.html" data-page="index">// INICIO</a>
+    <a class="nav-btn active" href="sobre-mi.html" data-page="sobre-mi">// SOBRE MÍ</a>
+    <a class="nav-btn" href="certificaciones.html" data-page="certificaciones">// CERTIFICACIONES</a>
+    <a class="nav-btn" href="contacto.html" data-page="contacto">// CONTACTO</a>
+  </nav>
+</header>
+
+<main>
+  <div class="reveal">
+    <div class="page-label">// 01 — PERFIL</div>
+    <h1><span class="dim">SOBRE</span><br><span class="hi">MÍ</span></h1>
+    <p class="page-desc">
+      Especializado en Cybersecurity y AI Governance. Mi enfoque combina marcos técnicos
+      de seguridad con gobernanza responsable de inteligencia artificial.
+    </p>
+  </div>
+
+  <div class="exp-grid">
+    <div class="exp-card reveal d1">
+      <div class="exp-num">01</div>
+      <div class="exp-title">Cybersecurity</div>
+      <p class="exp-desc">Protección de identidades, endpoints y datos en entornos cloud. Detección y respuesta a amenazas avanzadas.</p>
+      <div class="exp-tags">
+        <span class="exp-tag">SENTINEL</span>
+        <span class="exp-tag">DEFENDER</span>
+        <span class="exp-tag">ENTRA ID</span>
+      </div>
+    </div>
+    <div class="exp-card reveal d2">
+      <div class="exp-num">02</div>
+      <div class="exp-title">AI Governance</div>
+      <p class="exp-desc">Diseño de políticas y controles para el uso ético y responsable de IA. Auditoría y gestión de riesgos en sistemas inteligentes.</p>
+      <div class="exp-tags">
+        <span class="exp-tag">ÉTICA IA</span>
+        <span class="exp-tag">RIESGOS</span>
+        <span class="exp-tag">COMPLIANCE</span>
+      </div>
+    </div>
+    <div class="exp-card reveal d3">
+      <div class="exp-num">03</div>
+      <div class="exp-title">Cyber Governance</div>
+      <p class="exp-desc">Gestión de riesgos corporativos, cumplimiento regulatorio y alineación de seguridad con objetivos estratégicos.</p>
+      <div class="exp-tags">
+        <span class="exp-tag">GRC</span>
+        <span class="exp-tag">NIST</span>
+        <span class="exp-tag">ISO 27001</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="skills-section reveal">
+    <div class="skills-title">NIVEL DE EXPERTISE</div>
+    <div class="skill-row">
+      <div class="skill-top"><span class="name">Cybersecurity</span><span class="pct">90%</span></div>
+      <div class="skill-bg"><div class="skill-fill" data-to="90"></div></div>
+    </div>
+    <div class="skill-row">
+      <div class="skill-top"><span class="name">AI Governance</span><span class="pct">85%</span></div>
+      <div class="skill-bg"><div class="skill-fill" data-to="85"></div></div>
+    </div>
+    <div class="skill-row">
+      <div class="skill-top"><span class="name">Microsoft Security (SC-900 / SC-200)</span><span class="pct">88%</span></div>
+      <div class="skill-bg"><div class="skill-fill" data-to="88"></div></div>
+    </div>
+    <div class="skill-row">
+      <div class="skill-top"><span class="name">Risk & Compliance</span><span class="pct">82%</span></div>
+      <div class="skill-bg"><div class="skill-fill" data-to="82"></div></div>
+    </div>
+  </div>
+
+  <div class="reveal">
+    <div class="skills-title">TRAYECTORIA</div>
+    <div class="tl-section">
+      <div class="tl-item">
+        <div class="tl-year">INICIO</div>
+        <div class="tl-title">Descubrimiento de la Ciberseguridad</div>
+        <p class="tl-desc">Primer contacto con fundamentos de seguridad en redes, sistemas y entornos cloud Microsoft.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">SC-900</div>
+        <div class="tl-title">Microsoft Security Fundamentals</div>
+        <p class="tl-desc">Certificación en seguridad, cumplimiento e identidad en Microsoft 365 y Azure. Base sólida para operaciones de seguridad.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">SC-200</div>
+        <div class="tl-title">Security Operations Analyst</div>
+        <p class="tl-desc">Gestión de amenazas con Microsoft Sentinel, análisis de incidentes y respuesta avanzada a ataques.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">CAIERO</div>
+        <div class="tl-title">AI Ethics & Governance Expert + Master</div>
+        <p class="tl-desc">Especialización en gobernanza de IA responsable, marcos éticos y gestión de riesgos en sistemas inteligentes.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const cur=document.getElementById('cursor');
+  const trail=document.getElementById('cursor-trail');
+  let mx=0,my=0;
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX;my=e.clientY;
+    cur.style.left=mx+'px';cur.style.top=my+'px';
+    setTimeout(()=>{trail.style.left=mx+'px';trail.style.top=my+'px';},60);
+  });
+
+  // Enter animation: slices retract
+  const slices=document.querySelectorAll('.t-slice');
+  window.addEventListener('load',()=>{
+    setTimeout(()=>{
+      slices.forEach((s,i)=>{
+        s.style.transition=`transform .45s cubic-bezier(.77,0,.18,1) ${i*.05}s`;
+        s.style.transform='scaleX(0)';
+      });
+    },50);
+  });
+
+  // Reveal
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('show'); });
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // Skill bars
+  const barObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.querySelectorAll('.skill-fill').forEach(f=>f.style.width=f.dataset.to+'%');
+        barObs.unobserve(e.target);
+      }
+    });
+  },{threshold:.3});
+  document.querySelectorAll('.skills-section').forEach(el=>barObs.observe(el));
+
+  // Page transitions
+  const colors={'index':'#00c8ff','sobre-mi':'#7b61ff','certificaciones':'#ff1a1a','contacto':'#00e5a0'};
+  document.querySelectorAll('a[data-page]').forEach(link=>{
+    link.addEventListener('click',function(e){
+      if(this.href===window.location.href)return;
+      e.preventDefault();
+      const col=colors[this.dataset.page]||'#7b61ff';
+      slices.forEach((s,i)=>{
+        s.style.background=col;
+        s.style.transformOrigin='left';
+        s.style.transition=`transform .35s cubic-bezier(.77,0,.18,1) ${i*.04}s`;
+        s.style.transform='scaleX(1)';
+      });
+      setTimeout(()=>window.location.href=this.href,500);
+    });
+  });
+</script>
+</body>
+</html>
