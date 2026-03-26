@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Contacto | Gadael Hinojosa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#030f08;
+      --accent:#00e5a0;
+      --accent2:#00ffcc;
+      --text:#e0fff5;
+      --muted:rgba(224,255,245,.45);
+      --border:rgba(0,229,160,.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{min-height:100%;overflow-x:hidden;}
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:var(--bg);color:var(--text);cursor:none;
+    }
+
+    /* ── CURSOR ── */
+    #cursor{
+      position:fixed;width:12px;height:12px;
+      background:var(--accent);border-radius:50%;
+      pointer-events:none;z-index:9999;
+      transform:translate(-50%,-50%);
+      mix-blend-mode:screen;transition:width .15s,height .15s;
+    }
+    #cursor-trail{
+      position:fixed;width:36px;height:36px;
+      border:1px solid rgba(0,229,160,.4);border-radius:50%;
+      pointer-events:none;z-index:9998;
+      transform:translate(-50%,-50%);
+      transition:left .08s,top .08s;
+    }
+
+    /* ── TRANSITION OVERLAY ── */
+    #transition-overlay{
+      position:fixed;inset:0;z-index:10000;
+      pointer-events:none;display:flex;
+    }
+    .t-slice{
+      flex:1;background:var(--accent);
+      transform:scaleX(1);transform-origin:right;
+    }
+
+    /* ── BG ── */
+    .bg-green{
+      position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 600px 400px at 0% 50%, rgba(0,229,160,.07), transparent 60%),
+        radial-gradient(ellipse 500px 350px at 100% 20%, rgba(0,255,204,.05), transparent 55%);
+    }
+    canvas#matrix-canvas{
+      position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35;
+    }
+
+    /* ── HEADER ── */
+    header{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      padding:18px 5vw;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(20px);
+      background:rgba(3,15,8,.85);
+    }
+    .logo-mark{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:28px;letter-spacing:2px;color:var(--accent);
+    }
+    nav{display:flex;gap:6px;}
+    .nav-btn{
+      font-family:'Share Tech Mono',monospace;
+      font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+      padding:8px 16px;border-radius:4px;
+      border:1px solid transparent;
+      background:transparent;color:var(--muted);
+      cursor:none;transition:.2s;
+      text-decoration:none;display:inline-block;
+    }
+    .nav-btn:hover{color:var(--accent);border-color:rgba(0,229,160,.3);}
+    .nav-btn.active{
+      color:var(--accent);border-color:var(--accent);
+      background:rgba(0,229,160,.07);
+      box-shadow:0 0 20px rgba(0,229,160,.2);
+    }
+
+    /* ── MAIN ── */
+    main{
+      position:relative;z-index:2;
+      padding:110px 5vw 80px;
+      max-width:1120px;margin:0 auto;
+    }
+    .page-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:11px;letter-spacing:3px;color:var(--accent);
+      margin-bottom:12px;text-transform:uppercase;
+    }
+    h1{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:clamp(60px,9vw,110px);
+      line-height:.9;letter-spacing:3px;
+      margin-bottom:8px;
+    }
+    h1 .dim{color:rgba(224,255,245,.15);}
+    h1 .hi{
+      color:var(--accent);
+      text-shadow:0 0 30px rgba(0,229,160,.4);
+    }
+    .page-sub{
+      font-size:15px;color:var(--muted);line-height:1.8;
+      max-width:480px;margin-bottom:50px;font-weight:300;
+    }
+
+    /* ── LAYOUT ── */
+    .contact-layout{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:30px;align-items:start;
+    }
+    @media(max-width:750px){.contact-layout{grid-template-columns:1fr;}}
+
+    /* ── INFO CARDS ── */
+    .info-card{
+      border:1px solid var(--border);border-radius:12px;
+      padding:20px 22px;
+      background:rgba(0,229,160,.03);
+      display:flex;align-items:center;gap:16px;
+      margin-bottom:14px;transition:.3s;
+    }
+    .info-card:hover{border-color:rgba(0,229,160,.3);box-shadow:0 0 25px rgba(0,229,160,.07);}
+    .info-icon{
+      font-size:22px;width:46px;height:46px;
+      border-radius:10px;background:rgba(0,229,160,.08);
+      border:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .info-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px;letter-spacing:1.5px;color:var(--muted);
+      text-transform:uppercase;margin-bottom:3px;
+    }
+    .info-val{font-size:14px;font-weight:500;}
+
+    /* Availability indicator */
+    .availability{
+      border:1px solid rgba(0,229,160,.2);
+      border-radius:12px;padding:20px 22px;
+      background:rgba(0,229,160,.04);
+      margin-top:20px;
+    }
+    .avail-title{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:20px;letter-spacing:1px;
+      color:var(--accent);margin-bottom:12px;
+    }
+    .avail-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(0,229,160,.08);}
+    .avail-row:last-child{border-bottom:none;}
+    .avail-key{color:var(--muted);}
+    .avail-val{color:var(--accent);font-weight:500;}
+
+    /* ── FORM ── */
+    .form-card{
+      border:1px solid var(--border);border-radius:16px;
+      padding:30px;background:rgba(0,229,160,.02);
+    }
+    .form-title{
+      font-family:'Bebas Neue',sans-serif;
+      font-size:22px;letter-spacing:1.5px;
+      margin-bottom:22px;
+      color:var(--accent);
+    }
+    .form-group{margin-bottom:16px;}
+    .form-label{
+      font-family:'Share Tech Mono',monospace;
+      font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+      color:var(--muted);display:block;margin-bottom:7px;
+    }
+    .form-input,.form-textarea{
+      width:100%;padding:12px 14px;
+      border:1px solid var(--border);border-radius:8px;
+      background:rgba(0,229,160,.03);
+      color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;
+      outline:none;transition:.2s;
+    }
+    .form-input:focus,.form-textarea:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 20px rgba(0,229,160,.1),inset 0 0 10px rgba(0,229,160,.03);
+    }
+    .form-textarea{height:110px;resize:vertical;}
+    .form-input::placeholder,.form-textarea::placeholder{color:rgba(224,255,245,.2);}
+
+    .form-submit{
+      width:100%;padding:14px;
+      font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      color:#030f08;border:none;border-radius:8px;
+      cursor:none;transition:.25s;
+      box-shadow:0 0 30px rgba(0,229,160,.25);
+    }
+    .form-submit:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(0,229,160,.4);}
+    .form-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+    .form-msg{
+      margin-top:14px;padding:12px 14px;border-radius:8px;
+      font-size:13.5px;text-align:center;display:none;
+      font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.5px;
+    }
+    .form-msg.ok{background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);color:var(--accent);display:block;}
+    .form-msg.err{background:rgba(255,26,26,.08);border:1px solid rgba(255,26,26,.2);color:#ff4444;display:block;}
+
+    /* ── REVEAL ── */
+    .reveal{opacity:0;transform:translateY(16px);transition:.6s ease;}
+    .reveal.show{opacity:1;transform:translateY(0);}
+    .d1{transition-delay:.1s}.d2{transition-delay:.2s}
+  </style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+<div id="transition-overlay">
+  <div class="t-slice"></div><div class="t-slice"></div>
+  <div class="t-slice"></div><div class="t-slice"></div>
+  <div class="t-slice"></div>
+</div>
+
+<div class="bg-green"></div>
+<canvas id="matrix-canvas"></canvas>
+
+<header>
+  <div class="logo-mark">GH_</div>
+  <nav>
+    <a class="nav-btn" href="index.html" data-page="index">// INICIO</a>
+    <a class="nav-btn" href="sobre-mi.html" data-page="sobre-mi">// SOBRE MÍ</a>
+    <a class="nav-btn" href="certificaciones.html" data-page="certificaciones">// CERTIFICACIONES</a>
+    <a class="nav-btn active" href="contacto.html" data-page="contacto">// CONTACTO</a>
+  </nav>
+</header>
+
+<main>
+  <div class="reveal">
+    <div class="page-label">// 03 — HABLEMOS</div>
+    <h1><span class="hi">CONTA</span><br><span class="dim">CTO</span></h1>
+    <p class="page-sub">¿Tienes un proyecto de Cybersecurity o AI Governance? Escríbeme.</p>
+  </div>
+
+  <div class="contact-layout">
+
+    <div class="reveal d1">
+      <div class="info-card">
+        <div class="info-icon">🌐</div>
+        <div><div class="info-label">Sitio Web</div><div class="info-val">gadael.net</div></div>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">🛡️</div>
+        <div><div class="info-label">Especialidad</div><div class="info-val">Cybersecurity &amp; AI Governance</div></div>
+      </div>
+      <div class="info-card">
+        <div class="info-icon">📍</div>
+        <div><div class="info-label">Ubicación</div><div class="info-val">México</div></div>
+      </div>
+
+      <div class="availability">
+        <div class="avail-title">DISPONIBILIDAD</div>
+        <div class="avail-row"><span class="avail-key">Estado</span><span class="avail-val">● DISPONIBLE</span></div>
+        <div class="avail-row"><span class="avail-key">Respuesta</span><span class="avail-val">&lt; 24 HRS</span></div>
+        <div class="avail-row"><span class="avail-key">Proyectos</span><span class="avail-val">ABIERTO</span></div>
+        <div class="avail-row"><span class="avail-key">Consultoría</span><span class="avail-val">DISPONIBLE</span></div>
+      </div>
+    </div>
+
+    <div class="form-card reveal d2">
+      <div class="form-title">ENVÍA UN MENSAJE</div>
+      <div class="form-group">
+        <label class="form-label" for="inp-nombre">// Nombre</label>
+        <input class="form-input" id="inp-nombre" type="text" placeholder="Tu nombre completo"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="inp-email">// Email</label>
+        <input class="form-input" id="inp-email" type="email" placeholder="tu@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="inp-asunto">// Asunto</label>
+        <input class="form-input" id="inp-asunto" type="text" placeholder="Proyecto de Cybersecurity..."/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="inp-mensaje">// Mensaje</label>
+        <textarea class="form-textarea" id="inp-mensaje" placeholder="Cuéntame sobre tu proyecto..."></textarea>
+      </div>
+      <button class="form-submit" id="btnSubmit" type="button">ENVIAR →</button>
+      <div class="form-msg" id="formMsg"></div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── FIREBASE ── -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ─── REEMPLAZA CON TUS CREDENCIALES ───
+  const firebaseConfig = {
+    apiKey:            "TU_API_KEY",
+    authDomain:        "TU_PROJECT.firebaseapp.com",
+    projectId:         "TU_PROJECT_ID",
+    storageBucket:     "TU_PROJECT.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId:             "TU_APP_ID"
+  };
+  // ──────────────────────────────────────
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  document.getElementById('btnSubmit').addEventListener('click', async () => {
+    const nombre  = document.getElementById('inp-nombre').value.trim();
+    const email   = document.getElementById('inp-email').value.trim();
+    const asunto  = document.getElementById('inp-asunto').value.trim();
+    const mensaje = document.getElementById('inp-mensaje').value.trim();
+    const msgEl   = document.getElementById('formMsg');
+    const btn     = document.getElementById('btnSubmit');
+
+    msgEl.className = 'form-msg';
+
+    if (!nombre || !email || !mensaje) {
+      msgEl.textContent = '[ ERROR ] Completa todos los campos requeridos.';
+      msgEl.className = 'form-msg err'; return;
+    }
+
+    btn.disabled = true; btn.textContent = 'ENVIANDO...';
+    try {
+      await addDoc(collection(db, 'contactos'), {
+        nombre, email, asunto, mensaje,
+        fecha: serverTimestamp()
+      });
+      msgEl.textContent = '[ OK ] Mensaje recibido. Te respondo pronto 🚀';
+      msgEl.className = 'form-msg ok';
+      ['inp-nombre','inp-email','inp-asunto','inp-mensaje'].forEach(id => document.getElementById(id).value='');
+    } catch(err) {
+      console.error(err);
+      msgEl.textContent = '[ ERROR ] Fallo al enviar. Intenta de nuevo.';
+      msgEl.className = 'form-msg err';
+    } finally {
+      btn.disabled = false; btn.textContent = 'ENVIAR →';
+    }
+  });
+</script>
+
+<script>
+  // ── CURSOR ──
+  const cur=document.getElementById('cursor');
+  const trail=document.getElementById('cursor-trail');
+  document.addEventListener('mousemove',e=>{
+    cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';
+    setTimeout(()=>{trail.style.left=e.clientX+'px';trail.style.top=e.clientY+'px';},60);
+  });
+
+  // ── MATRIX RAIN ──
+  const canvas=document.getElementById('matrix-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  const cols=Math.floor(window.innerWidth/22);
+  const drops=Array(cols).fill(1);
+  const chars='CYBERSEC AI GOVERNANCE 01 GH'.split('');
+  function drawMatrix(){
+    ctx.fillStyle='rgba(3,15,8,.06)';
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(0,229,160,.55)';
+    ctx.font='14px Share Tech Mono, monospace';
+    drops.forEach((y,i)=>{
+      const ch=chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(ch,i*22,y*22);
+      if(y*22>H&&Math.random()>.975)drops[i]=0;
+      drops[i]++;
+    });
+  }
+  setInterval(drawMatrix,80);
+
+  // ── ENTER ANIMATION ──
+  const slices=document.querySelectorAll('.t-slice');
+  window.addEventListener('load',()=>{
+    setTimeout(()=>{
+      slices.forEach((s,i)=>{
+        s.style.transition=`transform .45s cubic-bezier(.77,0,.18,1) ${i*.05}s`;
+        s.style.transform='scaleX(0)';
+      });
+    },50);
+  });
+
+  // ── REVEAL ──
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show');});
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // ── PAGE TRANSITIONS ──
+  const colors={'index':'#00c8ff','sobre-mi':'#7b61ff','certificaciones':'#ff1a1a','contacto':'#00e5a0'};
+  document.querySelectorAll('a[data-page]').forEach(link=>{
+    link.addEventListener('click',function(e){
+      if(this.href===window.location.href)return;
+      e.preventDefault();
+      const col=colors[this.dataset.page]||'#00e5a0';
+      slices.forEach((s,i)=>{
+        s.style.background=col;
+        s.style.transformOrigin='left';
+        s.style.transition=`transform .35s cubic-bezier(.77,0,.18,1) ${i*.04}s`;
+        s.style.transform='scaleX(1)';
+      });
+      setTimeout(()=>window.location.href=this.href,500);
+    });
+  });
+</script>
+</body>
+</html>
